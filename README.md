@@ -37,11 +37,100 @@ This is a base workshop. Clone and start from this repo to create your workshop.
  After cloning the repo, from the base directory, run the following commands to deploy the app locally. 
  
  ```
- git submodule update --init
  docker build -t app-workshop .
  docker run -p 1313:1313 app-workshop:latest
  ```
 Open a browser and navigate to http://localhost:1313 to view the app.
+
+##### Using the CLI
+ 
+ Open a terminal and ensure the AWS_DEFAULT_REGION and AWS_PROFILE parameters are set.
+ 
+ ```
+ export AWS_DEFAULT_REGION=<your region>
+ export AWS_PROFILE=<your profile as configured in your local AWS credentials file>
+ ```
+ 
+ You will need to have an ECR repository set up before proceeding. You can create one via the following command with the CLI:
+ 
+ ```
+ aws ecr create-repository --repository-name <ECR Repo Name> --image-scanning-configuration scanOnPush=true
+ ```
+
+ Be sure to note down the repositoryUri displayed in the output.
+ 
+ You'll need to build and push the app image to the repository using the following commands. Be sure to substitute in appropriate values for your setup (such as region, etc.)
+ 
+ ```
+ aws ecr get-login-password --region <region> | docker login --username AWS --password-stdin <Your AWS acct number>.dkr.ecr.<region>.amazonaws.com
+ docker build -t app-workshop .
+ docker tag app-workshop:latest <reopsitoryUri>:latest
+ docker push <repositoryUri>:latest
+ ```
+ 
+ Retrieve the ECS CloudFormation template and parameter file from the utility repo:
+
+ ```
+ wget https://raw.githubusercontent.com/rob-40net-test/cft-utility-templates/main/ecs-app-params.json
+ wget https://raw.githubusercontent.com/rob-40net-test/cft-utility-templates/main/ecs-app-template.yml
+ ``` 
+
+ Open the ecs-app-params.json file and fill in the parameters as in this example: 
+
+ ```
+ [
+        {
+                "ParameterKey": "ECRRepo",
+                "ParameterValue": "<repositoryUri from output above>"
+        },
+        {
+                "ParameterKey": "KeyPair",
+                "ParameterValue": "<the name a key pair from your account>"
+        },
+        {
+                "ParameterKey": "AppVPC",
+                "ParameterValue": "vpc-123abc456"
+        },
+        {
+                "ParameterKey": "AppSubnet",
+                "ParameterValue": "subnet-789efg101112h"
+        },
+        {
+                "ParameterKey": "AllowedCidr",
+                "ParameterValue": "0.0.0.0/0"
+        }
+]
+ ```
+
+ Be sure to choose a VPC with an Internet Gateway and a subnet with a route table containing an entry with a target set to 0.0.0.0/0 and destination the Internet Gateway in order for the app to be accessible from the public internet.
+
+ Deploy the stack with the following command:
+
+ ```
+ aws cloudformation create-stack --stack-name <enter a name for your stack here> \
+    --template-body file://./ecs-app-template.yml --parameters file://./ecs-app-params.json \ 
+	--capabilities CAPABILITY_NAMED_IAM
+ ```
+ 
+The public IPv4 address of the instance where the container is deployed can be found by navigating to the EC2 Instances console and selecting the instance labeled "ECS Instance - <your stack name>". The app can be viewed in a browser by accessing: 
+ 
+```
+ http://<ec2 instance public IPv4>:1313
+``` 
+
+ To make changes, you can just rebuild the image and push again:
+ 
+ ```
+ docker build -t app-workshop .
+ docker tag app-workshop:latest <repositoryUri>:latest
+ docker push <repositoryUri>:latest
+ ```
+ 
+ When finished testing, you can delete the stack:
+ 
+ ```
+ aws cloudformation delete-stack --stack-name <your stack name>
+ ```
 
 ## Launch
 
