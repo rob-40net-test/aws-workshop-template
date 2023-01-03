@@ -84,6 +84,11 @@ Open a browser and navigate to http://localhost:1313 to view the app.
                 "ParameterValue": "<repositoryUri from output above>"
         },
         {
+                "ParameterKey": "ECRRepoName",
+                "ParameterValue": "<name of repository or repositoryName from output above>"
+        },
+   
+        {
                 "ParameterKey": "KeyPair",
                 "ParameterValue": "<the name a key pair from your account>"
         },
