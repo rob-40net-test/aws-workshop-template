@@ -103,6 +103,10 @@ Open a browser and navigate to http://localhost:1313 to view the app.
         {
                 "ParameterKey": "AllowedCidr",
                 "ParameterValue": "0.0.0.0/0"
+        },
+        {
+                "ParameterKey": "ElasticIPAlloc",
+                "ParameterValue": "eipalloc-1234abcd5678efgh9"
         }
 ]
  ```
