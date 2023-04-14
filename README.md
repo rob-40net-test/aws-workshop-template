@@ -71,8 +71,8 @@ Open a browser and navigate to http://localhost:1313 to view the app.
  Retrieve the ECS CloudFormation template and parameter file from the utility repo:
 
  ```
- wget https://raw.githubusercontent.com/rob-40net-test/cft-utility-templates/main/ecs-app-params.json
- wget https://raw.githubusercontent.com/rob-40net-test/cft-utility-templates/main/ecs-app-template.yml
+ wget https://raw.githubusercontent.com/rob-40net-test/cft-utility-templates/main/ecs-stack/ecs-app-params.json
+ wget https://raw.githubusercontent.com/rob-40net-test/cft-utility-templates/main/ecs-stack/ecs-app-template.yml
  ``` 
 
  Open the ecs-app-params.json file and fill in the parameters as in this example: 
